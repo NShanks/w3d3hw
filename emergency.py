@@ -1,3 +1,4 @@
+from multiprocessing.sharedctypes import Value
 import requests
 from time import sleep
 
@@ -46,6 +47,7 @@ class Move_tutor():
     def __init__(self):# init only houses attributes
         self.move_list = []
         self.availableMoves = []
+        self.types = []
         # self.getMoves()
         # self.name = Pokemon("charmander").name
     def getMoves(self):
@@ -101,15 +103,29 @@ class Move_tutor():
             print(f'Ran into an issue {r3.status_code}')
             return
 
+    def viewStats(self):
+        r3 = requests.get(f"https://pokeapi.co/api/v2/pokemon/{self.name}")
+        if r3.status_code == 200:
+            pokemon_moves = r3.json()
+            pokemon_types = r3.json()
+            # self.move_list = [move['move']['name']for move in pokemon_moves['moves']]
+            # self.types = [move['stat']['name']for move in pokemon_types['stats']]
+            self.types = {move['stat']['name']:move['base_stat']for move in pokemon_types['stats']}
+            # self.move_list = [move.values for move in pokemon_moves['moves']]
+            # print(self.move_list)
+            for key, value in self.types.items():
+                print(key, value)
+            return
+
     def run(self):        
         while True:
-            response = input("What would you like to do? (teach, view, quit) ")
+            response = input("What would you like to do? (teach, view, stats, quit) ")
             if response.lower() == "teach":
                 self.teachMoves()
             elif response.lower() == "view":
                 self.viewMoves()
-            elif response.lower() == "add":
-                self.add_user()
+            elif response.lower() == "stats":
+                self.viewStats()
             elif response.lower == "quit":
                 print(f"Thanks for training. Go outside! Or not, I'm not your mom. I'm a computer. bzzzzzz")
                 break
